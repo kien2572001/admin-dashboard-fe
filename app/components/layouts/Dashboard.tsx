@@ -1,7 +1,9 @@
+import { useState } from "react";
 import React from "react";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import AuthGuard from "@/app/guards/AuthGuard";
+import LocaleSwitcher from "../elements/LocaleSwitcher";
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -57,7 +59,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                   <i className="material-icons md-cast"></i>
                 </a>
               </li>
-              <li className="dropdown nav-item">
+              <li className="nav-item">
+                <LocaleSwitcher />
+              </li>
+              {/* <li className="dropdown nav-item">
                 <a
                   className="dropdown-toggle"
                   data-bs-toggle="dropdown"
@@ -88,7 +93,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                     中国人
                   </a>
                 </div>
-              </li>
+              </li> */}
               <li className="dropdown nav-item">
                 <a
                   className="dropdown-toggle"

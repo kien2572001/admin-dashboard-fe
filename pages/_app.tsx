@@ -3,6 +3,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AuthProvider from "@/app/services/contexts/auth/AuthContext";
+import "../app/services/utils/i18n.config";
 export default function MyApp({
   Component,
   pageProps,
