@@ -1,11 +1,12 @@
 import React from "react";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
+import AuthGuard from "@/app/guards/AuthGuard";
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   return (
-    <>
+    <AuthGuard>
       <div className="screen-overlay"></div>
       <Sidebar />
       <main className="main-wrap">
@@ -71,19 +72,19 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                   aria-labelledby="dropdownLanguage"
                 >
                   <a className="dropdown-item text-brand" href="#">
-                    <img src="assets/imgs/theme/flag-us.png" alt="English" />
+                    <img src="/assets/imgs/theme/flag-us.png" alt="English" />
                     English
                   </a>
                   <a className="dropdown-item" href="#">
-                    <img src="assets/imgs/theme/flag-fr.png" alt="Français" />
+                    <img src="/assets/imgs/theme/flag-fr.png" alt="Français" />
                     Français
                   </a>
                   <a className="dropdown-item" href="#">
-                    <img src="assets/imgs/theme/flag-jp.png" alt="Français" />
+                    <img src="/assets/imgs/theme/flag-jp.png" alt="Français" />
                     日本語
                   </a>
                   <a className="dropdown-item" href="#">
-                    <img src="assets/imgs/theme/flag-cn.png" alt="Français" />
+                    <img src="/assets/imgs/theme/flag-cn.png" alt="Français" />
                     中国人
                   </a>
                 </div>
@@ -99,7 +100,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
                   {" "}
                   <img
                     className="img-xs rounded-circle"
-                    src="assets/imgs/people/avatar-2.png"
+                    src="/assets/imgs/people/avatar-2.png"
                     alt="User"
                   />
                 </a>
@@ -139,7 +140,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
 
         <Footer />
       </main>
-    </>
+    </AuthGuard>
   );
 };
 
