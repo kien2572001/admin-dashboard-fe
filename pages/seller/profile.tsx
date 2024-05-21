@@ -60,11 +60,15 @@ export default function SellerProfile() {
                   className="center-xy img-fluid"
                   alt="Logo Brand"
                 /> */}
-                <img
-                  src={shop.logo || "/assets/imgs/brands/vendor-2.png"}
-                  className="center-xy img-fluid"
-                  alt="Logo Brand"
-                />
+                {shop.logo ? (
+                  <img
+                    src={"/assets/imgs/brands/vendor-2.png"}
+                    className="center-xy img-fluid"
+                    alt="Logo Brand"
+                  />
+                ) : (
+                  <Skeleton height={100} width={100} />
+                )}
               </div>
             </div>
             <div className="col-xl col-lg">
