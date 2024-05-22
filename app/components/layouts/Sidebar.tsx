@@ -24,8 +24,8 @@ const SellerSidebarMenu = [
         link: "page-products-list.html",
       },
       {
-        title: "Product grid",
-        link: "page-products-grid.html",
+        title: "Create Product",
+        link: RouterLinks.CREATE_PRODUCT,
       },
       {
         title: "Product grid 2",

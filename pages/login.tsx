@@ -25,7 +25,12 @@ export default function Login() {
       const response = await AuthServices.login(email, password);
       const { user, accessToken } = response.data;
       localStorage.setItem("ACCESS_TOKEN", accessToken);
-      dispatch(signIn(user));
+      dispatch(
+        signIn({
+          isAuthenticated: true,
+          user,
+        })
+      );
       router.push(RouterLinks.HOME);
     } catch (error: any) {
       //console.log(error.message);
