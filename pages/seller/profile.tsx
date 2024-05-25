@@ -6,6 +6,14 @@ import { useAuth } from "@/app/services/hooks/useAuth";
 import UserServices from "@/app/services/api/user-api";
 import { useRouter } from "next/router";
 import Skeleton from "react-loading-skeleton";
+import GoogleMapReact from "google-map-react";
+import { RiMapPin2Fill } from "react-icons/ri";
+
+const AnyReactComponent = ({ text }) => (
+  <div className="">
+    <RiMapPin2Fill className="text-danger" size={30} />
+  </div>
+);
 
 export default function SellerProfile() {
   const router = useRouter();
@@ -29,8 +37,23 @@ export default function SellerProfile() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(function (position) {
+      console.log("Latitude is :", position.coords.latitude);
+      console.log("Longitude is :", position.coords.longitude);
+    });
+  }, []);
+
   const goBack = () => {
     router.back();
+  };
+
+  const defaultProps = {
+    center: {
+      lat: 20.9977344,
+      lng: 105.8766848,
+    },
+    zoom: 11,
   };
 
   return (
@@ -119,7 +142,7 @@ export default function SellerProfile() {
               </p>
             </div>
             <div className="col-sm-6 col-xl-4 text-xl-end">
-              <map className="mapbox position-relative d-inline-block">
+              {/* <map className="mapbox position-relative d-inline-block">
                 <img
                   src="/assets/imgs/misc/map.jpg"
                   className="rounded2"
@@ -136,7 +159,23 @@ export default function SellerProfile() {
                 >
                   Large
                 </button>
-              </map>
+              </map> */}
+              <div style={{ height: "120px", width: "100%" }}>
+                <GoogleMapReact
+                  bootstrapURLKeys={{
+                    key: "AIzaSyAgrLYqXcYzR6HgLAjxKSbrVckTBsPdkBs",
+                  }}
+                  defaultCenter={defaultProps.center}
+                  defaultZoom={defaultProps.zoom}
+                  size={{ height: "100%", width: "100%" }}
+                >
+                  <AnyReactComponent
+                    lat={defaultProps.center.lat}
+                    lng={defaultProps.center.lng}
+                    text="My Marker"
+                  />
+                </GoogleMapReact>
+              </div>
             </div>
           </div>
         </div>

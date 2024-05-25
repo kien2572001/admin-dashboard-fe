@@ -9,14 +9,25 @@ interface Classification {
 interface ProductClassifySelectorProps {
   selectedClassify: Classification[];
   setSelectedClassify: (classify: any) => void;
+  isHasManyClassifications: boolean;
+  setIsHasManyClassifications: (isHasManyClassifications: boolean) => void;
+  price: number;
+  quantity: number;
+  setPrice: (price: number) => void;
+  setQuantity: (quantity: number) => void;
 }
 
 export default function ProductClassifySelector({
   selectedClassify,
   setSelectedClassify,
+  isHasManyClassifications,
+  setIsHasManyClassifications,
+  price,
+  quantity,
+  setPrice,
+  setQuantity,
 }: ProductClassifySelectorProps) {
-  const [isHasManyClassifications, setIsHasManyClassifications] =
-    useState(false);
+  useState(false);
   const [classifications, setClassifications] =
     useState<Classification[]>(selectedClassify);
 
@@ -93,6 +104,8 @@ export default function ProductClassifySelector({
                   placeholder="$"
                   className="form-control"
                   id="price"
+                  value={price}
+                  onChange={(e) => setPrice(Number(e.target.value))}
                 />
               </div>
               <div className="mb-4 col-lg-6">
@@ -104,6 +117,8 @@ export default function ProductClassifySelector({
                   placeholder="Quantity"
                   className="form-control"
                   id="quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
                 />
               </div>
             </div>

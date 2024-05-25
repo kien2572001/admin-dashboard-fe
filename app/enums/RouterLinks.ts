@@ -5,5 +5,6 @@ export enum RouterLinks {
   SELLER_PROFILE = "/seller/profile",
 
   // Product
+  PRODUCT_LIST = "/product/list",
   CREATE_PRODUCT = "/product/create",
 }

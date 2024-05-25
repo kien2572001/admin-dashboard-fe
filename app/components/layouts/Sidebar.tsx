@@ -21,7 +21,7 @@ const SellerSidebarMenu = [
     submenu: [
       {
         title: "Product List",
-        link: "page-products-list.html",
+        link: RouterLinks.PRODUCT_LIST,
       },
       {
         title: "Create Product",

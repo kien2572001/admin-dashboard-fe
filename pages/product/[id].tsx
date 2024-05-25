@@ -3,7 +3,6 @@
 import DashboardLayout from "@/app/components/layouts/Dashboard";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/app/services/hooks/useAuth";
-import { toast } from "react-toastify";
 import ProductServices from "@/app/services/api/product-api";
 import { useRouter } from "next/router";
 import CategorySelector from "@/app/components/elements/CategorySelector";
@@ -26,14 +25,11 @@ type ResultItem = {
 
 export default function CreateProduct() {
   const router = useRouter();
+  const id = router.query.id;
   const { user } = useAuth();
 
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
-  const [isHasManyClassifications, setIsHasManyClassifications] =
-    useState(false);
-  const [price, setPrice] = useState(0);
-  const [quantity, setQuantity] = useState(0);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
@@ -104,19 +100,11 @@ export default function CreateProduct() {
         product_variants: selectedVariants,
         classifications: selectedClassify,
         inventories: listClassifyDetail,
-        is_has_many_classifications: isHasManyClassifications,
         status: status,
-        inventory:
-          isHasManyClassifications === false
-            ? {
-                price: price,
-                quantity: quantity,
-              }
-            : {},
       } as any;
 
       const response = await ProductServices.createProduct(data);
-      const _id = response;
+      const { _id } = response;
       console.log("product_id", _id);
       const mediaFormData = new FormData();
 
@@ -135,7 +123,6 @@ export default function CreateProduct() {
 
       console.log("Upload media success");
     } catch (error) {
-      toast.error("Error when create product. Please try again later.");
       console.log("error", error);
     }
   };
@@ -249,12 +236,6 @@ export default function CreateProduct() {
           <ProductClassifySelector
             selectedClassify={selectedClassify}
             setSelectedClassify={setSelectedClassify}
-            isHasManyClassifications={isHasManyClassifications}
-            setIsHasManyClassifications={setIsHasManyClassifications}
-            price={price}
-            setPrice={setPrice}
-            quantity={quantity}
-            setQuantity={setQuantity}
           />
           {/* <!-- card end// --> */}
 
@@ -262,8 +243,6 @@ export default function CreateProduct() {
             selectedClassify={selectedClassify}
             listClassifyDetail={listClassifyDetail}
             setListClassifyDetail={setListClassifyDetail}
-            isHasManyClassifications={isHasManyClassifications}
-            setIsHasManyClassifications={setIsHasManyClassifications}
           />
           {/* <!-- card end// --> */}
 
