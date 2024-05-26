@@ -239,41 +239,47 @@ export default function ProductList() {
         </div>
       </div>
       <div className="pagination-area mt-30 mb-50">
-        <nav aria-label="Page navigation example">
-          <ul className="pagination justify-content-start">
-            <li className="page-item">
-              <button
-                className="page-link"
-                onClick={goToPreviousPage}
-                disabled={page === 1}
-              >
-                <i className="material-icons md-chevron_left"></i>
-              </button>
-            </li>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <li
-                key={index}
-                className={`page-item ${page === index + 1 ? "active" : ""}`}
-              >
-                <button
-                  className="page-link"
-                  onClick={() => setPageNumber(index + 1)}
+        {totalPages > 1 && (
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-start">
+              {page > 1 && (
+                <li className="page-item">
+                  <button
+                    className="page-link"
+                    onClick={goToPreviousPage}
+                    disabled={page === 1}
+                  >
+                    <i className="material-icons md-chevron_left"></i>
+                  </button>
+                </li>
+              )}
+              {Array.from({ length: totalPages }, (_, index) => (
+                <li
+                  key={"pagination-" + index}
+                  className={`page-item ${page === index + 1 ? "active" : ""}`}
                 >
-                  {index + 1}
-                </button>
-              </li>
-            ))}
-            <li className="page-item">
-              <button
-                className="page-link"
-                onClick={goToNextPage}
-                disabled={page === totalPages}
-              >
-                <i className="material-icons md-chevron_right"></i>
-              </button>
-            </li>
-          </ul>
-        </nav>
+                  <button
+                    className="page-link"
+                    onClick={() => setPageNumber(index + 1)}
+                  >
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+              {page < totalPages && (
+                <li className="page-item">
+                  <button
+                    className="page-link"
+                    onClick={goToNextPage}
+                    disabled={page === totalPages}
+                  >
+                    <i className="material-icons md-chevron_right"></i>
+                  </button>
+                </li>
+              )}
+            </ul>
+          </nav>
+        )}
       </div>
     </DashboardLayout>
   );

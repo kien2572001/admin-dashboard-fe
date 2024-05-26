@@ -42,6 +42,7 @@ export default function ProductDetail() {
           setSelectedImages(response.images);
           setSelectedVideos(response.videos);
           setSelectedVariants(response.product_variants);
+          setProductStatus(response.status);
           setIsHasManyClassifications(response.is_has_many_classifications);
           if (response.is_has_many_classifications) {
             setInitInventoriesData({
@@ -105,12 +106,12 @@ export default function ProductDetail() {
   }, [selectedClassify]);
 
   useEffect(() => {
-    console.log("initInventoriesData", initInventoriesData);
+    //console.log("initInventoriesData", initInventoriesData);
     let listClassifyDetail = createListClassifyDetail(selectedClassify) as [];
     const selectedClassifySize = selectedClassify.length;
-    console.log("selectedClassifySize", selectedClassifySize);
+    //console.log("selectedClassifySize", selectedClassifySize);
     //only init data when first time
-    console.log("initInventoriesData.isInit", initInventoriesData.isInit);
+    //console.log("initInventoriesData.isInit", initInventoriesData.isInit);
     if (initInventoriesData.isInit) {
       listClassifyDetail = listClassifyDetail.map((item: any) => {
         const found = initInventoriesData.inventories.find((inventory) => {
@@ -139,7 +140,7 @@ export default function ProductDetail() {
       }) as []; // Add type annotation to fix the error
       setInitInventoriesData({ ...initInventoriesData, isInit: false });
     }
-    console.log("listClassifyDetail", listClassifyDetail);
+    //console.log("listClassifyDetail", listClassifyDetail);
     setListClassifyDetail(listClassifyDetail);
   }, [selectedClassify]);
 
@@ -211,7 +212,37 @@ export default function ProductDetail() {
   };
 
   const handleSaveEdit = async () => {
-    console.log("Save edit");
+    try {
+      console.log("Save edit");
+      const updatedProduct = {
+        _id: id,
+        product_name: productName,
+        product_description: productDescription,
+        category_id: selectedCategoryId,
+        product_variants: selectedVariants,
+        classifications: selectedClassify,
+        shipping_information: shippingInformation,
+        status: productStatus,
+        is_has_many_classifications: isHasManyClassifications,
+      } as any;
+      if (isHasManyClassifications) {
+        updatedProduct.inventories = listClassifyDetail;
+      } else {
+        updatedProduct.inventory = {
+          price: price,
+          quantity: quantity,
+        };
+      }
+
+      const result = await ProductServices.updateProduct(
+        id as string,
+        updatedProduct
+      );
+      router.reload();
+    } catch (error) {
+      console.error("Error when update product:", error);
+      toast.error("Error when update product. Please try again later.");
+    }
   };
 
   return (
@@ -268,11 +299,13 @@ export default function ProductDetail() {
 
                 <div className="col-lg-4">
                   <label className="form-label">Status</label>
-                  <select className="form-select">
+                  <select
+                    className="form-select"
+                    onChange={(e) => setProductStatus(e.target.value)}
+                    value={productStatus}
+                  >
                     {Object.values(ProductStatus).map((status) => (
-                      <option selected={productStatus === status} key={status}>
-                        {status}
-                      </option>
+                      <option key={status}>{status}</option>
                     ))}
                   </select>
                 </div>
