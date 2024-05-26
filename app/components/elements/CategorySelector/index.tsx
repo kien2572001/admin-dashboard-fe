@@ -6,7 +6,7 @@ import Form from "react-bootstrap/Form";
 import React from "react";
 import { FaSquare, FaCheckSquare, FaMinusSquare } from "react-icons/fa";
 import { IoMdArrowDropright } from "react-icons/io";
-import TreeView, { flattenTree } from "react-accessible-treeview";
+import TreeView, { flattenTree, NodeId } from "react-accessible-treeview";
 import cx from "classnames";
 import "./styles.css";
 
@@ -69,8 +69,10 @@ interface Category {
 }
 
 export default function CategorySelector({
+  selectedCategoryId,
   setSelectedCategoryId,
 }: {
+  selectedCategoryId: string;
   setSelectedCategoryId: (id: string) => void;
 }) {
   const [show, setShow] = useState(false);
@@ -93,6 +95,23 @@ export default function CategorySelector({
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (selectedCategoryId) {
+      // console.log("selectedCategoryId", selectedCategoryId);
+      // console.log("listCategory", listCategory);
+      const node = listCategory.find((item) => item._id === selectedCategoryId);
+      //console.log("node", node);
+      if (node) {
+        setSelectedCategory(node.category_name);
+        setInputValue(getNodePath(node.category_name));
+      }
+    }
+  }, [selectedCategoryId]);
+
+  useEffect(() => {
+    setInputValue(getNodePath(selectedCategory));
+  }, [selectedCategory]);
 
   const buildTreeCategory = (categories: any) => {
     categories = categories.map((category: any) => {
@@ -125,6 +144,26 @@ export default function CategorySelector({
     };
   };
 
+  const getNodeIdInTree = (tree: any, node_name: string): number | null => {
+    let count = 0;
+    const findNode = (node: any): number | null => {
+      count++;
+      if (node.name === node_name) {
+        return count;
+      }
+      if (node.children) {
+        for (let i = 0; i < node.children.length; i++) {
+          const result = findNode(node.children[i]);
+          if (result !== null) {
+            return result;
+          }
+        }
+      }
+      return null;
+    };
+    return findNode(tree);
+  };
+
   const getNodePath = (node_name: string) => {
     const node = listCategory.find((item) => item.category_name === node_name);
     if (!node) {
@@ -142,10 +181,6 @@ export default function CategorySelector({
       .join(" -> ");
     return path;
   };
-
-  useEffect(() => {
-    setInputValue(getNodePath(selectedCategory));
-  }, [selectedCategory]);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -195,6 +230,9 @@ export default function CategorySelector({
                   multiSelect={false}
                   propagateSelectUpwards
                   togglableSelect
+                  selectedIds={[
+                    getNodeIdInTree(tree, selectedCategory) as NodeId,
+                  ]}
                   nodeAction="check"
                   nodeRenderer={({
                     element,

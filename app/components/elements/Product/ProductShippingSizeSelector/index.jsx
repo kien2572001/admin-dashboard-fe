@@ -32,6 +32,7 @@ export default function ProductShippingSizeSelector({
                   onChange={(e) =>
                     handleShippingInputChange(e.target.value, "width")
                   }
+                  value={shippingInformation.width}
                 />
               </div>
             </div>
@@ -48,6 +49,7 @@ export default function ProductShippingSizeSelector({
                   onChange={(e) =>
                     handleShippingInputChange(e.target.value, "length")
                   }
+                  value={shippingInformation.length}
                 />
               </div>
             </div>
@@ -66,6 +68,7 @@ export default function ProductShippingSizeSelector({
                   onChange={(e) =>
                     handleShippingInputChange(e.target.value, "height")
                   }
+                  value={shippingInformation.height}
                 />
               </div>
             </div>
@@ -82,6 +85,7 @@ export default function ProductShippingSizeSelector({
                   onChange={(e) =>
                     handleShippingInputChange(e.target.value, "weight")
                   }
+                  value={shippingInformation.weight}
                 />
               </div>
             </div>

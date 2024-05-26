@@ -17,53 +17,41 @@ export default function LocaleSwitcher() {
     setOpen(false); // Close dropdown after language change
   };
   return (
-    <>
-      {/* <select
-        value={i18n.resolvedLanguage}
-        onChange={(e) => i18n.changeLanguage(e.target.value)}
+    <div className="dropdown nav-item">
+      <a
+        className="dropdown-toggle"
+        onClick={() => setOpen(!open)} // Toggle dropdown menu visibility
+        href="#"
+        id="dropdownLanguage"
+        aria-expanded={open ? "true" : "false"} // Set aria-expanded based on dropdown visibility
+      >
+        <i className="material-icons md-public"></i>
+      </a>
+      <div
+        className={`dropdown-menu dropdown-menu-end ${open ? "show" : ""}`} // Add "show" class when dropdown is open
+        aria-labelledby="dropdownLanguage"
       >
         {Object.entries(supportedLanguages).map(([key, value]) => (
-          <option key={key} value={key}>
+          <a
+            key={key}
+            className={`dropdown-item ${
+              i18n.resolvedLanguage === key ? "text-brand" : ""
+            }`} // Add "active" class to active language
+            href="#"
+            onClick={() => changeLanguage(key)} // Call changeLanguage function on click
+          >
+            <img
+              src={
+                supportedLanguageIcons[
+                  key as keyof typeof supportedLanguageIcons
+                ]
+              } // Add index signature to allow indexing with a string
+              alt={value}
+            />
             {value}
-          </option>
+          </a>
         ))}
-      </select> */}
-      <li className="dropdown nav-item">
-        <a
-          className="dropdown-toggle"
-          onClick={() => setOpen(!open)} // Toggle dropdown menu visibility
-          href="#"
-          id="dropdownLanguage"
-          aria-expanded={open ? "true" : "false"} // Set aria-expanded based on dropdown visibility
-        >
-          <i className="material-icons md-public"></i>
-        </a>
-        <div
-          className={`dropdown-menu dropdown-menu-end ${open ? "show" : ""}`} // Add "show" class when dropdown is open
-          aria-labelledby="dropdownLanguage"
-        >
-          {Object.entries(supportedLanguages).map(([key, value]) => (
-            <a
-              key={key}
-              className={`dropdown-item ${
-                i18n.resolvedLanguage === key ? "text-brand" : ""
-              }`} // Add "active" class to active language
-              href="#"
-              onClick={() => changeLanguage(key)} // Call changeLanguage function on click
-            >
-              <img
-                src={
-                  supportedLanguageIcons[
-                    key as keyof typeof supportedLanguageIcons
-                  ]
-                } // Add index signature to allow indexing with a string
-                alt={value}
-              />
-              {value}
-            </a>
-          ))}
-        </div>
-      </li>
-    </>
+      </div>
+    </div>
   );
 }

@@ -6,8 +6,12 @@ import { useAuth } from "@/app/services/hooks/useAuth";
 import { ProductStatus } from "@/app/enums/ProductStatus";
 import ProductServices from "@/app/services/api/product-api";
 import usePagination from "@/app/services/hooks/usePagination";
+import { useRouter } from "next/router";
+import { toast } from "react-toastify";
+import { RouterLinks } from "@/app/enums/RouterLinks";
 export default function ProductList() {
   const { user } = useAuth();
+  const router = useRouter();
   const {
     page,
     limit,
@@ -19,29 +23,103 @@ export default function ProductList() {
     setTotalPages,
   } = usePagination();
 
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await ProductServices.fetchProductsListForSeller({
+        page,
+        limit,
+      });
+      setTotalPages(response.totalPages);
+      setProducts(response.docs);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   useEffect(() => {
-    // Fetch products based on page and limit
-    const fetchProducts = async () => {
-      try {
-        const response = await ProductServices.fetchProductsListForSeller({
-          page,
-          limit,
-        });
-        setTotalPages(response.totalPages);
-        setProducts(response.docs);
-        //setProducts(data.docs);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-
     fetchProducts();
   }, [page, limit, totalPages]);
 
+  const pushToProductDetail = (id: string) => {
+    router.push(`/product/${id}`);
+  };
+
+  const handlerDeleteProduct = async () => {
+    if (!productToDelete) return;
+
+    try {
+      await ProductServices.deleteProduct(productToDelete);
+      setShowModal(false);
+      fetchProducts();
+      toast.success("Product deleted successfully"); // toast is a notification library
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+
+  const confirmDeleteProduct = (id: string) => {
+    setProductToDelete(id);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setProductToDelete(null);
+  };
+
+  const StatusBadge = ({ status }: { status: string }) => {
+    if (status === ProductStatus.ACTIVE) {
+      return <span className="badge rounded-pill alert-success">Active</span>;
+    } else if (status === ProductStatus.INACTIVE) {
+      return <span className="badge rounded-pill alert-danger">Inactive</span>;
+    } else if (status === ProductStatus.DRAFT) {
+      return <span className="badge rounded-pill alert-warning">Draft</span>;
+    }
+  };
+
   return (
     <DashboardLayout>
+      {/* Modal */}
+      {showModal && (
+        <div className="modal show" tabIndex={-1} style={{ display: "block" }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Delete</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={closeModal}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>Are you sure you want to delete this product?</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={handlerDeleteProduct}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="content-header">
         <div>
           <h2 className="content-title card-title">Products List</h2>
@@ -54,7 +132,11 @@ export default function ProductList() {
           <a href="#" className="btn btn-light rounded font-md">
             Import
           </a>
-          <a href="#" className="btn btn-primary btn-sm rounded">
+          <a
+            href="#"
+            className="btn btn-primary btn-sm rounded"
+            onClick={() => router.push(RouterLinks.CREATE_PRODUCT)}
+          >
             Create new
           </a>
         </div>
@@ -88,500 +170,74 @@ export default function ProductList() {
             </div>
           </div>
         </header>
-        {/* <!-- card-header end// --> */}
         <div className="card-body">
-          <article className="itemlist">
-            <div className="row align-items-center">
-              <div className="col col-check flex-grow-0">
-                <div className="form-check">
-                  <input className="form-check-input" type="checkbox" />
+          {products.map((product) => {
+            return (
+              <article className="itemlist" key={product._id}>
+                <div className="row align-items-center">
+                  <div className="col col-check flex-grow-0">
+                    <div className="form-check">
+                      <input className="form-check-input" type="checkbox" />
+                    </div>
+                  </div>
+                  <div className="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
+                    <a
+                      className="itemside"
+                      href="#"
+                      onClick={() => pushToProductDetail(product._id)}
+                    >
+                      <div className="left">
+                        <img
+                          src={
+                            product?.images[0]?.url ||
+                            "/assets/imgs/items/1.jpg"
+                          }
+                          className="img-sm img-thumbnail"
+                          alt="Item"
+                        />
+                      </div>
+                      <div className="info">
+                        <h6 className="mb-0">
+                          {product?.product_name || "Product Name"}
+                        </h6>
+                      </div>
+                    </a>
+                  </div>
+                  <div className="col-lg-2 col-sm-2 col-4 col-price">
+                    <span>{product?.price || 0}</span>
+                  </div>
+                  <div className="col-lg-2 col-sm-2 col-4 col-status">
+                    <StatusBadge status={product?.status} />
+                  </div>
+                  <div className="col-lg-1 col-sm-2 col-4 col-date">
+                    <span>
+                      {new Date(product.created_at).toLocaleDateString("en-GB")}
+                    </span>
+                  </div>
+                  <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
+                    <a
+                      href="#"
+                      className="btn btn-sm font-sm rounded btn-brand"
+                    >
+                      {" "}
+                      <i className="material-icons md-edit"></i> Edit{" "}
+                    </a>
+                    <a
+                      href="#"
+                      className="btn btn-sm font-sm btn-light rounded"
+                      onClick={() => confirmDeleteProduct(product._id)}
+                    >
+                      {" "}
+                      <i className="material-icons md-delete_forever"></i>{" "}
+                      Delete{" "}
+                    </a>
+                  </div>
                 </div>
-              </div>
-              <div className="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                <a className="itemside" href="#">
-                  <div className="left">
-                    <img
-                      src="/assets/imgs/items/1.jpg"
-                      className="img-sm img-thumbnail"
-                      alt="Item"
-                    />
-                  </div>
-                  <div className="info">
-                    <h6 className="mb-0">Seeds of Change Organic Quinoa</h6>
-                  </div>
-                </a>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-price">
-                <span>$34.50</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-status">
-                <span className="badge rounded-pill alert-success">Active</span>
-              </div>
-              <div className="col-lg-1 col-sm-2 col-4 col-date">
-                <span>02.11.2021</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="#" className="btn btn-sm font-sm rounded btn-brand">
-                  {" "}
-                  <i className="material-icons md-edit"></i> Edit{" "}
-                </a>
-                <a href="#" className="btn btn-sm font-sm btn-light rounded">
-                  {" "}
-                  <i className="material-icons md-delete_forever"></i> Delete{" "}
-                </a>
-              </div>
-            </div>
-            {/* <!-- row .// --> */}
-          </article>
-          {/* <!-- itemlist  .// --> */}
-          <article className="itemlist">
-            <div className="row align-items-center">
-              <div className="col col-check flex-grow-0">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value=""
-                  />
-                </div>
-              </div>
-              <div className="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                <a className="itemside" href="#">
-                  <div className="left">
-                    <img
-                      src="/assets/imgs/items/2.jpg"
-                      className="img-sm img-thumbnail"
-                      alt="Item"
-                    />
-                  </div>
-                  <div className="info">
-                    <h6 className="mb-0">All Natural Italian-Style Chicken</h6>
-                  </div>
-                </a>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-price">
-                <span>$990.99</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-status">
-                <span className="badge rounded-pill alert-success">Active</span>
-              </div>
-              <div className="col-lg-1 col-sm-2 col-4 col-date">
-                <span>02.11.2021</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="#" className="btn btn-sm font-sm rounded btn-brand">
-                  {" "}
-                  <i className="material-icons md-edit"></i> Edit{" "}
-                </a>
-                <a href="#" className="btn btn-sm font-sm btn-light rounded">
-                  {" "}
-                  <i className="material-icons md-delete_forever"></i> Delete{" "}
-                </a>
-              </div>
-            </div>
-            {/* <!-- row .// --> */}
-          </article>
-          {/* <!-- itemlist  .// --> */}
-          <article className="itemlist">
-            <div className="row align-items-center">
-              <div className="col col-check flex-grow-0">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value=""
-                  />
-                </div>
-              </div>
-              <div className="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                <a className="itemside" href="#">
-                  <div className="left">
-                    <img
-                      src="/assets/imgs/items/3.jpg"
-                      className="img-sm img-thumbnail"
-                      alt="Item"
-                    />
-                  </div>
-                  <div className="info">
-                    <h6 className="mb-0">Gortons Beer Battered Fish Fillets</h6>
-                  </div>
-                </a>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-price">
-                <span>$76.99</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-status">
-                <span className="badge rounded-pill alert-warning">
-                  Archived
-                </span>
-              </div>
-              <div className="col-lg-1 col-sm-2 col-4 col-date">
-                <span>02.11.2021</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="#" className="btn btn-sm font-sm rounded btn-brand">
-                  {" "}
-                  <i className="material-icons md-edit"></i> Edit{" "}
-                </a>
-                <a href="#" className="btn btn-sm font-sm btn-light rounded">
-                  {" "}
-                  <i className="material-icons md-delete_forever"></i> Delete{" "}
-                </a>
-              </div>
-            </div>
-            {/* <!-- row .// --> */}
-          </article>
-          {/* <!-- itemlist  .// --> */}
-          <article className="itemlist">
-            <div className="row align-items-center">
-              <div className="col col-check flex-grow-0">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value=""
-                  />
-                </div>
-              </div>
-              <div className="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                <a className="itemside" href="#">
-                  <div className="left">
-                    <img
-                      src="/assets/imgs/items/4.jpg"
-                      className="img-sm img-thumbnail"
-                      alt="Item"
-                    />
-                  </div>
-                  <div className="info">
-                    <h6 className="mb-0">
-                      Foster Farms Takeout Crispy Classic Buffalo
-                    </h6>
-                  </div>
-                </a>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-price">
-                <span>$18.00</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-status">
-                <span className="badge rounded-pill alert-success">Active</span>
-              </div>
-              <div className="col-lg-1 col-sm-2 col-4 col-date">
-                <span>02.11.2021</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="#" className="btn btn-sm font-sm rounded btn-brand">
-                  {" "}
-                  <i className="material-icons md-edit"></i> Edit{" "}
-                </a>
-                <a href="#" className="btn btn-sm font-sm btn-light rounded">
-                  {" "}
-                  <i className="material-icons md-delete_forever"></i> Delete{" "}
-                </a>
-              </div>
-            </div>
-            {/* <!-- row .// --> */}
-          </article>
-          {/* <!-- itemlist  .// --> */}
-          <article className="itemlist">
-            <div className="row align-items-center">
-              <div className="col col-check flex-grow-0">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value=""
-                  />
-                </div>
-              </div>
-              <div className="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                <a className="itemside" href="#">
-                  <div className="left">
-                    <img
-                      src="/assets/imgs/items/3.jpg"
-                      className="img-sm img-thumbnail"
-                      alt="Item"
-                    />
-                  </div>
-                  <div className="info">
-                    <h6 className="mb-0">
-                      Blue Diamond Almonds Lightly Salted
-                    </h6>
-                  </div>
-                </a>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-price">
-                <span>$76.99</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-status">
-                <span className="badge rounded-pill alert-danger">
-                  Disabled
-                </span>
-              </div>
-              <div className="col-lg-1 col-sm-2 col-4 col-date">
-                <span>02.11.2021</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="#" className="btn btn-sm font-sm rounded btn-brand">
-                  {" "}
-                  <i className="material-icons md-edit"></i> Edit{" "}
-                </a>
-                <a href="#" className="btn btn-sm font-sm btn-light rounded">
-                  {" "}
-                  <i className="material-icons md-delete_forever"></i> Delete{" "}
-                </a>
-              </div>
-            </div>
-            {/* <!-- row .// --> */}
-          </article>
-          {/* <!-- itemlist  .// --> */}
-          <article className="itemlist">
-            <div className="row align-items-center">
-              <div className="col col-check flex-grow-0">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value=""
-                  />
-                </div>
-              </div>
-              <div className="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                <a className="itemside" href="#">
-                  <div className="left">
-                    <img
-                      src="/assets/imgs/items/5.jpg"
-                      className="img-sm img-thumbnail"
-                      alt="Item"
-                    />
-                  </div>
-                  <div className="info">
-                    <h6 className="mb-0">
-                      Chobani Complete Vanilla Greek Yogurt
-                    </h6>
-                  </div>
-                </a>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-price">
-                <span>$18.00</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-status">
-                <span className="badge rounded-pill alert-warning">
-                  Archived
-                </span>
-              </div>
-              <div className="col-lg-1 col-sm-2 col-4 col-date">
-                <span>02.11.2021</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="#" className="btn btn-sm font-sm rounded btn-brand">
-                  {" "}
-                  <i className="material-icons md-edit"></i> Edit{" "}
-                </a>
-                <a href="#" className="btn btn-sm font-sm btn-light rounded">
-                  {" "}
-                  <i className="material-icons md-delete_forever"></i> Delete{" "}
-                </a>
-              </div>
-            </div>
-            {/* <!-- row .// --> */}
-          </article>
-          {/* <!-- itemlist  .// --> */}
-          <article className="itemlist">
-            <div className="row align-items-center">
-              <div className="col col-check flex-grow-0">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value=""
-                  />
-                </div>
-              </div>
-              <div className="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                <a className="itemside" href="#">
-                  <div className="left">
-                    <img
-                      src="/assets/imgs/items/6.jpg"
-                      className="img-sm img-thumbnail"
-                      alt="Item"
-                    />
-                  </div>
-                  <div className="info">
-                    <h6 className="mb-0">Canada Dry Ginger Ale 2 L Bottle</h6>
-                  </div>
-                </a>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-price">
-                <span>$76.99</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-status">
-                <span className="badge rounded-pill alert-success">Active</span>
-              </div>
-              <div className="col-lg-1 col-sm-2 col-4 col-date">
-                <span>02.11.2021</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="#" className="btn btn-sm font-sm rounded btn-brand">
-                  {" "}
-                  <i className="material-icons md-edit"></i> Edit{" "}
-                </a>
-                <a href="#" className="btn btn-sm font-sm btn-light rounded">
-                  {" "}
-                  <i className="material-icons md-delete_forever"></i> Delete{" "}
-                </a>
-              </div>
-            </div>
-            {/* <!-- row .// --> */}
-          </article>
-          {/* <!-- itemlist  .// --> */}
-          <article className="itemlist">
-            <div className="row align-items-center">
-              <div className="col col-check flex-grow-0">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value=""
-                  />
-                </div>
-              </div>
-              <div className="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                <a className="itemside" href="#">
-                  <div className="left">
-                    <img
-                      src="/assets/imgs/items/4.jpg"
-                      className="img-sm img-thumbnail"
-                      alt="Item"
-                    />
-                  </div>
-                  <div className="info">
-                    <h6 className="mb-0">Gortons Beer Battered Fish Fillets</h6>
-                  </div>
-                </a>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-price">
-                <span>$18.00</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-status">
-                <span className="badge rounded-pill alert-success">Active</span>
-              </div>
-              <div className="col-lg-1 col-sm-2 col-4 col-date">
-                <span>02.11.2021</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="#" className="btn btn-sm font-sm rounded btn-brand">
-                  {" "}
-                  <i className="material-icons md-edit"></i> Edit{" "}
-                </a>
-                <a href="#" className="btn btn-sm font-sm btn-light rounded">
-                  {" "}
-                  <i className="material-icons md-delete_forever"></i> Delete{" "}
-                </a>
-              </div>
-            </div>
-            {/* <!-- row .// --> */}
-          </article>
-          {/* <!-- itemlist  .// --> */}
-          <article className="itemlist">
-            <div className="row align-items-center">
-              <div className="col col-check flex-grow-0">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value=""
-                  />
-                </div>
-              </div>
-              <div className="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
-                <a className="itemside" href="#">
-                  <div className="left">
-                    <img
-                      src="/assets/imgs/items/3.jpg"
-                      className="img-sm img-thumbnail"
-                      alt="Item"
-                    />
-                  </div>
-                  <div className="info">
-                    <h6 className="mb-0">Gortons Beer Battered Fish Fillets</h6>
-                  </div>
-                </a>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-price">
-                <span>$76.99</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-status">
-                <span className="badge rounded-pill alert-success">Active</span>
-              </div>
-              <div className="col-lg-1 col-sm-2 col-4 col-date">
-                <span>02.11.2021</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="#" className="btn btn-sm font-sm rounded btn-brand">
-                  {" "}
-                  <i className="material-icons md-edit"></i> Edit{" "}
-                </a>
-                <a href="#" className="btn btn-sm font-sm btn-light rounded">
-                  {" "}
-                  <i className="material-icons md-delete_forever"></i> Delete{" "}
-                </a>
-              </div>
-            </div>
-            {/* <!-- row .// --> */}
-          </article>
-          {/* <!-- itemlist  .// --> */}
-          <article className="itemlist">
-            <div className="row align-items-center">
-              <div className="col col-check flex-grow-0">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value=""
-                  />
-                </div>
-              </div>
-              <div className="col-lg-3 col-sm-4 col-8 flex-grow-1 col-name">
-                <a className="itemside" href="#">
-                  <div className="left">
-                    <img
-                      src="/assets/imgs/items/4.jpg"
-                      className="img-sm img-thumbnail"
-                      alt="Item"
-                    />
-                  </div>
-                  <div className="info">
-                    <h6 className="mb-0">Haagen-Dazs Caramel Cone Ice</h6>
-                  </div>
-                </a>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-price">
-                <span>$180.99</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-status">
-                <span className="badge rounded-pill alert-success">Active</span>
-              </div>
-              <div className="col-lg-1 col-sm-2 col-4 col-date">
-                <span>02.11.2021</span>
-              </div>
-              <div className="col-lg-2 col-sm-2 col-4 col-action text-end">
-                <a href="#" className="btn btn-sm font-sm rounded btn-brand">
-                  {" "}
-                  <i className="material-icons md-edit"></i> Edit{" "}
-                </a>
-                <a href="#" className="btn btn-sm font-sm btn-light rounded">
-                  {" "}
-                  <i className="material-icons md-delete_forever"></i> Delete{" "}
-                </a>
-              </div>
-            </div>
-            {/* <!-- row .// --> */}
-          </article>
-          {/* <!-- itemlist  .// --> */}
+              </article>
+            );
+          })}
         </div>
-        {/* <!-- card-body end// --> */}
       </div>
-      {/* <!-- card end// --> */}
       <div className="pagination-area mt-30 mb-50">
         <nav aria-label="Page navigation example">
           <ul className="pagination justify-content-start">

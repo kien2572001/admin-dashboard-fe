@@ -163,7 +163,7 @@ export default function SellerProfile() {
               <div style={{ height: "120px", width: "100%" }}>
                 <GoogleMapReact
                   bootstrapURLKeys={{
-                    key: "AIzaSyAgrLYqXcYzR6HgLAjxKSbrVckTBsPdkBs",
+                    key: process.env.GOOGLE_MAP_API_KEY,
                   }}
                   defaultCenter={defaultProps.center}
                   defaultZoom={defaultProps.zoom}

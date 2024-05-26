@@ -17,6 +17,33 @@ class ProductService {
     return ProductService.instance;
   }
 
+  async fetchProductById(productId) {
+    try {
+      const token = localStorage.getItem("ACCESS_TOKEN");
+      const response = await fetch(
+        `${this.baseUrl}/private/product/id/${productId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          },
+        }
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message, error.status);
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      throw error; // Re-throw for handling in components
+    }
+  }
+
   async fetchProductsListForSeller({ page = 1, limit = 10 }) {
     try {
       const token = localStorage.getItem("ACCESS_TOKEN");
@@ -82,6 +109,33 @@ class ProductService {
         },
         body: JSON.stringify(product),
       });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message, error.status);
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      throw error; // Re-throw for handling in components
+    }
+  }
+
+  async deleteProduct(productId) {
+    try {
+      const token = localStorage.getItem("ACCESS_TOKEN");
+      const response = await fetch(
+        `${this.baseUrl}/private/product/id/${productId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          },
+        }
+      );
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message, error.status);

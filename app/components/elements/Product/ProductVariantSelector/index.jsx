@@ -1,29 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 export default function ProductVariantSelector({
   selectedVariants,
   setSelectedVariants,
 }) {
-  const [attributes, setAttributes] = useState(selectedVariants);
-
-  useEffect(() => {
-    setSelectedVariants(attributes);
-  }, [attributes]);
-
   const addAttribute = () => {
-    setAttributes([...attributes, { name: "", value: "" }]);
+    setSelectedVariants([...selectedVariants, { name: "", value: "" }]);
   };
 
   const removeAttribute = (index) => {
-    const newAttributes = attributes.filter((_, i) => i !== index);
-    setAttributes(newAttributes);
+    const newAttributes = selectedVariants.filter((_, i) => i !== index);
+    setSelectedVariants(newAttributes);
   };
 
   const handleAttributeChange = (index, field, value) => {
-    const newAttributes = attributes.map((attr, i) =>
+    const newAttributes = selectedVariants.map((attr, i) =>
       i === index ? { ...attr, [field]: value } : attr
     );
-    setAttributes(newAttributes);
+    setSelectedVariants(newAttributes);
   };
 
   return (
@@ -41,7 +35,7 @@ export default function ProductVariantSelector({
       <div className="card-body">
         <form>
           <div className="row">
-            {attributes.map((attribute, index) => (
+            {selectedVariants.map((attribute, index) => (
               <div className="row mb-3" key={index}>
                 <div className="col-lg-4">
                   <input

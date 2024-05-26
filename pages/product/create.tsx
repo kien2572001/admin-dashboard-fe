@@ -132,8 +132,8 @@ export default function CreateProduct() {
       });
 
       await ProductServices.updateProductMedia(_id, mediaFormData);
-
       console.log("Upload media success");
+      router.push("/product/" + _id);
     } catch (error) {
       toast.error("Error when create product. Please try again later.");
       console.log("error", error);
@@ -158,6 +158,7 @@ export default function CreateProduct() {
 
     // Tính sản phẩm Cartesian của các mảng phần tử
     const product = cartesianProduct(itemsArrays);
+    console.log("product", product);
 
     // Chuyển đổi sản phẩm thành cấu trúc đối tượng với các khóa cố định
     const result: ResultItem[] = product.map((itemCombination) => {
@@ -172,11 +173,13 @@ export default function CreateProduct() {
       return obj;
     });
 
+    console.log("result", result);
+
     return result.map((item) => {
       return {
         ...item,
         price: 0,
-        stock: 0,
+        quantity: 0,
       };
     });
   };
@@ -233,6 +236,7 @@ export default function CreateProduct() {
                 </div>
 
                 <CategorySelector
+                  selectedCategoryId={selectedCategoryId}
                   setSelectedCategoryId={setSelectedCategoryId}
                 />
               </form>

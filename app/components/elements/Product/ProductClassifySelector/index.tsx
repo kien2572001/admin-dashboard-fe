@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { v4 as uuidv4 } from "uuid";
+
+interface Item {
+  _id: string;
+  item_name: string;
+}
 
 interface Classification {
-  id?: string;
+  _id: string;
   classification_name: string;
-  items: string[];
+  items: Item[];
 }
 
 interface ProductClassifySelectorProps {
   selectedClassify: Classification[];
-  setSelectedClassify: (classify: any) => void;
+  setSelectedClassify: (classify: Classification[]) => void;
   isHasManyClassifications: boolean;
   setIsHasManyClassifications: (isHasManyClassifications: boolean) => void;
   price: number;
@@ -27,32 +33,28 @@ export default function ProductClassifySelector({
   setPrice,
   setQuantity,
 }: ProductClassifySelectorProps) {
-  useState(false);
-  const [classifications, setClassifications] =
-    useState<Classification[]>(selectedClassify);
-
-  useEffect(() => {
-    setSelectedClassify(classifications);
-  }, [classifications]);
-
   const handleAddClassification = () => {
     setIsHasManyClassifications(true);
-    setClassifications([
-      ...classifications,
-      { classification_name: "", items: [""] },
+    setSelectedClassify([
+      ...selectedClassify,
+      {
+        _id: uuidv4(),
+        classification_name: "",
+        items: [{ _id: uuidv4(), item_name: "" }],
+      },
     ]);
   };
 
   const handleRemoveClassification = (index: number) => {
-    const newClassifications = [...classifications];
+    const newClassifications = [...selectedClassify];
     newClassifications.splice(index, 1);
-    setClassifications(newClassifications);
+    setSelectedClassify(newClassifications);
   };
 
   const handleClassificationNameChange = (index: number, name: string) => {
-    const newClassifications = [...classifications];
+    const newClassifications = [...selectedClassify];
     newClassifications[index].classification_name = name;
-    setClassifications(newClassifications);
+    setSelectedClassify(newClassifications);
   };
 
   const handleItemChange = (
@@ -60,28 +62,28 @@ export default function ProductClassifySelector({
     itemIndex: number,
     value: string
   ) => {
-    const newClassifications = [...classifications];
-    newClassifications[classificationIndex].items[itemIndex] = value;
-    setClassifications(newClassifications);
+    const newClassifications = [...selectedClassify];
+    newClassifications[classificationIndex].items[itemIndex].item_name = value;
+    setSelectedClassify(newClassifications);
   };
 
   const handleAddItem = (index: number) => {
-    const newClassifications = [...classifications];
-    newClassifications[index].items.push("");
-    setClassifications(newClassifications);
+    const newClassifications = [...selectedClassify];
+    newClassifications[index].items.push({ _id: uuidv4(), item_name: "" });
+    setSelectedClassify(newClassifications);
   };
 
   const handleRemoveItem = (classificationIndex: number, itemIndex: number) => {
-    const newClassifications = [...classifications];
+    const newClassifications = [...selectedClassify];
     newClassifications[classificationIndex].items.splice(itemIndex, 1);
-    setClassifications(newClassifications);
+    setSelectedClassify(newClassifications);
   };
 
   return (
     <div className="card mb-4">
       <div className="card-header d-flex justify-content-between">
         <h4>Sales information</h4>
-        {classifications.length < 2 && (
+        {selectedClassify.length < 2 && (
           <button
             type="button"
             className="btn btn-primary font-sm"
@@ -123,7 +125,7 @@ export default function ProductClassifySelector({
               </div>
             </div>
           ) : (
-            classifications.map((classification, classificationIndex) => (
+            selectedClassify.map((classification, classificationIndex) => (
               <div key={classificationIndex} className="mb-4">
                 <div className="mb-3">
                   <label
@@ -163,13 +165,13 @@ export default function ProductClassifySelector({
                 </div>
                 <label className="form-label">Item</label>
                 {classification.items.map((item, itemIndex) => (
-                  <div key={itemIndex} className="row mb-2">
+                  <div key={item._id} className="row mb-2">
                     <div className="col-lg-10">
                       <input
                         type="text"
                         placeholder={"Example: Red, Blue, Green, ..."}
                         className="form-control"
-                        value={item}
+                        value={item.item_name}
                         onChange={(e) =>
                           handleItemChange(
                             classificationIndex,
