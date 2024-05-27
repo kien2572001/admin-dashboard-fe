@@ -65,6 +65,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           payload: { isAuthenticated: true, user },
         });
       } catch (error) {
+        localStorage.removeItem("ACCESS_TOKEN");
         dispatch({
           type: AuthActionTypes.INITIALIZED,
           payload: { isAuthenticated: false, user: null },

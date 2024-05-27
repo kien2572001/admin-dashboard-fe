@@ -107,7 +107,7 @@ export default function CategorySelector({
         setInputValue(getNodePath(node.category_name));
       }
     }
-  }, [selectedCategoryId]);
+  }, [selectedCategoryId, listCategory]);
 
   useEffect(() => {
     setInputValue(getNodePath(selectedCategory));
@@ -230,9 +230,11 @@ export default function CategorySelector({
                   multiSelect={false}
                   propagateSelectUpwards
                   togglableSelect
-                  selectedIds={[
-                    getNodeIdInTree(tree, selectedCategory) as NodeId,
-                  ]}
+                  // selectedIds={
+                  //   selectedCategory
+                  //     ? ([getNodeIdInTree(tree, selectedCategory)] as NodeId[])
+                  //     : []
+                  // }
                   nodeAction="check"
                   nodeRenderer={({
                     element,

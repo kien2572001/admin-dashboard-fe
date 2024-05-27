@@ -28,6 +28,7 @@ type ResultItem = {
 export default function ProductDetail() {
   const router = useRouter();
   const id = router.query.id;
+  console.log("id", id);
 
   useEffect(() => {
     if (id) {
@@ -238,6 +239,7 @@ export default function ProductDetail() {
         id as string,
         updatedProduct
       );
+      toast.success("Update product success");
       router.reload();
     } catch (error) {
       console.error("Error when update product:", error);
@@ -305,7 +307,9 @@ export default function ProductDetail() {
                     value={productStatus}
                   >
                     {Object.values(ProductStatus).map((status) => (
-                      <option key={status}>{status}</option>
+                      <option key={status} value={status}>
+                        {status.toUpperCase()}
+                      </option>
                     ))}
                   </select>
                 </div>
