@@ -47,7 +47,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        const decodedToken: { exp: number } = jwtDecode(accessToken);
+        const decodedToken: { exp: number; shop_id: string } =
+          jwtDecode(accessToken);
+        //console.log("shop_id", decodedToken.shop_id); // 'shop_id', 'exp
         const currentTime = Date.now() / 1000;
 
         if (decodedToken.exp < currentTime) {
@@ -62,7 +64,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const user = await UserServices.fetchMyProfile();
         dispatch({
           type: AuthActionTypes.INITIALIZED,
-          payload: { isAuthenticated: true, user },
+          payload: {
+            isAuthenticated: true,
+            user: { ...user, shop_id: decodedToken.shop_id },
+          },
         });
       } catch (error) {
         localStorage.removeItem("ACCESS_TOKEN");

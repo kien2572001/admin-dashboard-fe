@@ -9,6 +9,7 @@ import usePagination from "@/app/services/hooks/usePagination";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { RouterLinks } from "@/app/enums/RouterLinks";
+import ProductPrice from "@/app/components/elements/ProductPrice";
 export default function ProductList() {
   const { user } = useAuth();
   const router = useRouter();
@@ -204,7 +205,9 @@ export default function ProductList() {
                     </a>
                   </div>
                   <div className="col-lg-2 col-sm-2 col-4 col-price">
-                    <span>{product?.price || 0}</span>
+                    <span>
+                      <ProductPrice price={product.price} />
+                    </span>
                   </div>
                   <div className="col-lg-2 col-sm-2 col-4 col-status">
                     <StatusBadge status={product?.status} />
@@ -218,6 +221,7 @@ export default function ProductList() {
                     <a
                       href="#"
                       className="btn btn-sm font-sm rounded btn-brand"
+                      onClick={() => pushToProductDetail(product._id)}
                     >
                       {" "}
                       <i className="material-icons md-edit"></i> Edit{" "}

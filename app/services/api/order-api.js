@@ -1,27 +1,56 @@
-class ProductService {
+class OrderService {
   static instance = null;
 
   constructor() {
-    if (ProductService.instance) {
-      throw new Error("Singleton class, Use ProductService.getInstance()");
+    if (OrderService.instance) {
+      throw new Error("Singleton class, Use OrderService.getInstance()");
     }
-    //this.baseUrl = process.env.BACKEND_URL + "/product-service";
-    this.baseUrl = "http://localhost:8021";
-    ProductService.instance = this;
+    //this.baseUrl = process.env.BACKEND_URL + "/order-service";
+    this.baseUrl = "http://localhost:8041";
+    OrderService.instance = this;
   }
 
   static getInstance() {
-    if (!ProductService.instance) {
-      return new ProductService();
+    if (!OrderService.instance) {
+      return new OrderService();
     }
-    return ProductService.instance;
+    return OrderService.instance;
   }
 
-  async fetchProductById(productId) {
+  async fetchOrderByCode(code) {
+    try {
+      const token = localStorage.getItem("ACCESS_TOKEN");
+      const response = await fetch(`${this.baseUrl}/public/order/${code}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message, error.status);
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      throw error; // Re-throw for handling in components
+    }
+  }
+
+  async fetchOrdersBySellerId(
+    sellerId,
+    { page = 1, limit = 10, status = "all", code = "" }
+  ) {
     try {
       const token = localStorage.getItem("ACCESS_TOKEN");
       const response = await fetch(
-        `${this.baseUrl}/private/product/id/${productId}`,
+        `${this.baseUrl}/public/order/shop/${sellerId}?` +
+          new URLSearchParams({ page, limit, status, code }),
         {
           method: "GET",
           headers: {
@@ -44,11 +73,37 @@ class ProductService {
     }
   }
 
-  async fetchProductsListForSeller({ page = 1, limit = 10 }) {
+  async createFlashSale(flashsale) {
+    try {
+      const token = localStorage.getItem("ACCESS_TOKEN");
+      const response = await fetch(`${this.baseUrl}/public/flashsale/create`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        },
+        body: JSON.stringify(flashsale),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message, error.status);
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async fetchFlashSaleBySellerId(sellerId, { page = 1, limit = 10 }) {
     try {
       const token = localStorage.getItem("ACCESS_TOKEN");
       const response = await fetch(
-        `${this.baseUrl}/private/product/list?` +
+        `${this.baseUrl}/public/flashsale/shop/${sellerId}?` +
           new URLSearchParams({ page, limit }),
         {
           method: "GET",
@@ -60,6 +115,7 @@ class ProductService {
           },
         }
       );
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message, error.status);
@@ -68,92 +124,15 @@ class ProductService {
       const data = await response.json();
       return data.data;
     } catch (error) {
-      throw error; // Re-throw for handling in components
+      throw error;
     }
   }
 
-  async fetchAllCategories() {
-    try {
-      const token = localStorage.getItem("ACCESS_TOKEN");
-      const response = await fetch(`${this.baseUrl}/private/category/list`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        },
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message, error.status);
-      }
-
-      const data = await response.json();
-      return data.data;
-    } catch (error) {
-      throw error; // Re-throw for handling in components
-    }
-  }
-
-  async createProduct(product) {
-    try {
-      const token = localStorage.getItem("ACCESS_TOKEN");
-      const response = await fetch(`${this.baseUrl}/private/product/create`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        },
-        body: JSON.stringify(product),
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message, error.status);
-      }
-
-      const data = await response.json();
-      return data.data;
-    } catch (error) {
-      throw error; // Re-throw for handling in components
-    }
-  }
-
-  async updateProduct(productId, product) {
+  async deleteFlashSale(flashsaleId) {
     try {
       const token = localStorage.getItem("ACCESS_TOKEN");
       const response = await fetch(
-        `${this.baseUrl}/private/product/id/${productId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          },
-          body: JSON.stringify(product),
-        }
-      );
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message, error.status);
-      }
-
-      const data = await response.json();
-      return data.data;
-    } catch (error) {
-      throw error; // Re-throw for handling in components
-    }
-  }
-
-  async deleteProduct(productId) {
-    try {
-      const token = localStorage.getItem("ACCESS_TOKEN");
-      const response = await fetch(
-        `${this.baseUrl}/private/product/id/${productId}`,
+        `${this.baseUrl}/public/flashsale/${flashsaleId}`,
         {
           method: "DELETE",
           headers: {
@@ -164,6 +143,7 @@ class ProductService {
           },
         }
       );
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message, error.status);
@@ -172,25 +152,26 @@ class ProductService {
       const data = await response.json();
       return data.data;
     } catch (error) {
-      throw error; // Re-throw for handling in components
+      throw error;
     }
   }
 
-  async updateProductMedia(productId, media) {
+  async getFlashSaleById(flashsaleId) {
     try {
       const token = localStorage.getItem("ACCESS_TOKEN");
       const response = await fetch(
-        `${this.baseUrl}/private/product/${productId}/media`,
+        `${this.baseUrl}/public/flashsale/${flashsaleId}`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
           },
-          body: media,
         }
       );
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message, error.status);
@@ -199,9 +180,35 @@ class ProductService {
       const data = await response.json();
       return data.data;
     } catch (error) {
-      throw error; // Re-throw for handling in components
+      throw error;
+    }
+  }
+
+  async updateFlashSale(id, flashsale) {
+    try {
+      const token = localStorage.getItem("ACCESS_TOKEN");
+      const response = await fetch(`${this.baseUrl}/public/flashsale/${id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        },
+        body: JSON.stringify(flashsale),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message, error.status);
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      throw error;
     }
   }
 }
 
-export default ProductService.getInstance();
+export default OrderService.getInstance();

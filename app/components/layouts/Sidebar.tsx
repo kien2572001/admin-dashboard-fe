@@ -27,14 +27,14 @@ const SellerSidebarMenu = [
         title: "Create Product",
         link: RouterLinks.CREATE_PRODUCT,
       },
-      {
-        title: "Product grid 2",
-        link: "page-products-grid-2.html",
-      },
-      {
-        title: "Categories",
-        link: "page-categories.html",
-      },
+      // {
+      //   title: "Product grid 2",
+      //   link: "page-products-grid-2.html",
+      // },
+      // {
+      //   title: "Categories",
+      //   link: "page-categories.html",
+      // },
     ],
   },
   {
@@ -43,21 +43,36 @@ const SellerSidebarMenu = [
     link: "page-orders-1.html",
     submenu: [
       {
-        title: "Order list 1",
-        link: "page-orders-1.html",
+        title: "Order list",
+        link: RouterLinks.ORDER_LIST,
+      },
+      // {
+      //   title: "Order list 2",
+      //   link: "page-orders-2.html",
+      // },
+      // {
+      //   title: "Order detail",
+      //   link: "page-orders-detail.html",
+      // },
+    ],
+  },
+  {
+    title: "Flash Sales",
+    icon: "md-flash_on",
+    link: "flash-sales",
+    submenu: [
+      {
+        title: "Flash Sale List",
+        link: RouterLinks.FLASH_SALE_LIST,
       },
       {
-        title: "Order list 2",
-        link: "page-orders-2.html",
-      },
-      {
-        title: "Order detail",
-        link: "page-orders-detail.html",
+        title: "Create Flash Sale",
+        link: RouterLinks.CREATE_FLASH_SALE,
       },
     ],
   },
   {
-    title: "Sellers",
+    title: "Seller",
     icon: "md-store",
     link: "seller",
     submenu: [

@@ -6,7 +6,7 @@ class AuthServices {
       throw new Error("Singleton class, Use AuthServices.getInstance()");
     }
     //this.baseUrl = process.env.BACKEND_URL + "/auth-service";
-    this.baseUrl = "http://localhost:8081/auth";
+    this.baseUrl = "http://localhost:8011/auth";
     AuthServices.instance = this;
   }
 

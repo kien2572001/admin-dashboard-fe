@@ -6,7 +6,7 @@ class UserServices {
       throw new Error("Singleton class, Use UserServices.getInstance()");
     }
     //this.baseUrl = process.env.BACKEND_URL + "/user-service";
-    this.baseUrl = "http://localhost:8081";
+    this.baseUrl = "http://localhost:8011";
     UserServices.instance = this;
   }
 

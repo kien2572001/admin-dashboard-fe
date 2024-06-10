@@ -56,10 +56,6 @@ export default function CreateProduct() {
     return listMedia;
   };
 
-  // useEffect(() => {
-  //   console.log("selectedVariants", selectedVariants);
-  // }, [selectedVariants]);
-
   useEffect(() => {
     console.log("selectedClassify", selectedClassify);
   }, [selectedClassify]);
@@ -116,6 +112,7 @@ export default function CreateProduct() {
       } as any;
 
       const response = await ProductServices.createProduct(data);
+      //console.log("response", response);
       const _id = response;
       console.log("product_id", _id);
       const mediaFormData = new FormData();

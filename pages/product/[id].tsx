@@ -121,8 +121,7 @@ export default function ProductDetail() {
               inventory.classification_main_id ===
               item.classification_main_id._id
             );
-          }
-          if (selectedClassifySize === 2) {
+          } else if (selectedClassifySize === 2) {
             return (
               inventory.classification_main_id ===
                 item.classification_main_id._id &&
