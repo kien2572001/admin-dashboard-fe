@@ -6,7 +6,8 @@ class OrderService {
       throw new Error("Singleton class, Use OrderService.getInstance()");
     }
     //this.baseUrl = process.env.BACKEND_URL + "/order-service";
-    this.baseUrl = "http://localhost:8041";
+    //this.baseUrl = "http://localhost:8041";
+    this.baseUrl = process.env.ORDER_SERVICE_URL;
     OrderService.instance = this;
   }
 
