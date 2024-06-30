@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
 interface TimePickerModalProps {
@@ -14,6 +14,7 @@ const FlashSaleTimePickerModal: React.FC<TimePickerModalProps> = ({
 }) => {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("");
+  const [validTimeSlots, setValidTimeSlots] = useState<string[]>([]);
 
   const timeSlots = [
     "00:00-02:00",
@@ -26,11 +27,16 @@ const FlashSaleTimePickerModal: React.FC<TimePickerModalProps> = ({
     "21:00-00:00",
   ];
 
+  useEffect(() => {
+    updateValidTimeSlots(selectedDate);
+  }, [selectedDate]);
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(e.target.value);
+    setSelectedTimeSlot(""); // Reset time slot when date changes
   };
 
-  const handleTimeSlotChange = (e: any) => {
+  const handleTimeSlotChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedTimeSlot(e.target.value);
   };
 
@@ -38,8 +44,28 @@ const FlashSaleTimePickerModal: React.FC<TimePickerModalProps> = ({
     handleSave(`${selectedDate} ${selectedTimeSlot}`);
   };
 
+  const updateValidTimeSlots = (date: string) => {
+    if (date === new Date().toISOString().split("T")[0]) {
+      const currentHour = new Date().getHours();
+      const currentMinutes = new Date().getMinutes();
+      const currentTime = currentHour + currentMinutes / 60;
+      const sixHoursAgo = currentTime - 6;
+      setValidTimeSlots(
+        timeSlots.filter((slot) => {
+          const [startHour, endHour] = slot.split("-").map((time) => {
+            const [hour, minute] = time.split(":").map(Number);
+            return hour + minute / 60;
+          });
+          return startHour >= sixHoursAgo;
+        })
+      );
+    } else {
+      setValidTimeSlots(timeSlots);
+    }
+  };
+
   return (
-    <Modal show={show} onHide={handleClose} centered={true} static={true}>
+    <Modal show={show} onHide={handleClose} centered={true} backdrop="static">
       <Modal.Header closeButton>
         <Modal.Title>Select Time Frame</Modal.Title>
       </Modal.Header>
@@ -47,13 +73,22 @@ const FlashSaleTimePickerModal: React.FC<TimePickerModalProps> = ({
         <Form>
           <Form.Group controlId="formDate">
             <Form.Label>Select Date</Form.Label>
-            <Form.Control type="date" onChange={handleDateChange} />
+            <Form.Control
+              type="date"
+              onChange={handleDateChange}
+              min={new Date().toISOString().split("T")[0]}
+            />
           </Form.Group>
           <Form.Group controlId="formTimeSlot">
             <Form.Label>Select Time Slot</Form.Label>
-            <Form.Control as="select" onChange={handleTimeSlotChange}>
+            <Form.Control
+              as="select"
+              // @ts-ignore
+              onChange={handleTimeSlotChange}
+              value={selectedTimeSlot}
+            >
               <option value="">Select time slot</option>
-              {timeSlots.map((slot, index) => (
+              {validTimeSlots.map((slot, index) => (
                 <option key={index} value={slot}>
                   {slot}
                 </option>
@@ -66,7 +101,11 @@ const FlashSaleTimePickerModal: React.FC<TimePickerModalProps> = ({
         <Button variant="secondary" onClick={handleClose}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={handleSaveClick}>
+        <Button
+          variant="primary"
+          onClick={handleSaveClick}
+          disabled={!selectedDate || !selectedTimeSlot}
+        >
           Save
         </Button>
       </Modal.Footer>

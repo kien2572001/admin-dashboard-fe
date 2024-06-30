@@ -11,6 +11,7 @@ import moment from "moment";
 import { Button, Modal } from "react-bootstrap";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import { RouterLinks } from "@/app/enums/RouterLinks";
 export default function FlashSaleList() {
   const { user } = useAuth();
   const router = useRouter();
@@ -108,7 +109,7 @@ export default function FlashSaleList() {
     const timeDiffInMinutes = timeDiff / (1000 * 60); // 1 phút = 60000 milliseconds
 
     // Kiểm tra xem sự chênh lệch có lớn hơn hoặc bằng 30 phút hay không
-    return timeDiffInMinutes >= 30;
+    return timeDiffInMinutes >= 60;
   };
 
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
@@ -146,6 +147,15 @@ export default function FlashSaleList() {
       <div className="content-header">
         <div>
           <h2 className="content-title card-title">Flash Sale List</h2>
+        </div>
+        <div>
+          <a
+            href="#"
+            className="btn btn-primary btn-sm rounded"
+            onClick={() => router.push(RouterLinks.CREATE_FLASH_SALE)}
+          >
+            Create new
+          </a>
         </div>
       </div>
       <div className="card mb-4">

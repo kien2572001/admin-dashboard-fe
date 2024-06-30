@@ -9,7 +9,7 @@ import Skeleton from "react-loading-skeleton";
 import GoogleMapReact from "google-map-react";
 import { RiMapPin2Fill } from "react-icons/ri";
 
-const AnyReactComponent = ({ text }) => (
+const AnyReactComponent = ({ text }: { text: string }) => (
   <div className="">
     <RiMapPin2Fill className="text-danger" size={30} />
   </div>
@@ -25,6 +25,7 @@ export default function SellerProfile() {
       try {
         const shop = await UserServices.fetchShopProfile();
         if (shop) {
+          //console.log("Shop found", shop);
           setShop(shop);
         } else {
           console.log("No shop found");
@@ -36,25 +37,6 @@ export default function SellerProfile() {
     };
     fetchData();
   }, []);
-
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(function (position) {
-      console.log("Latitude is :", position.coords.latitude);
-      console.log("Longitude is :", position.coords.longitude);
-    });
-  }, []);
-
-  const goBack = () => {
-    router.back();
-  };
-
-  const defaultProps = {
-    center: {
-      lat: 20.9977344,
-      lng: 105.8766848,
-    },
-    zoom: 11,
-  };
 
   return (
     <DashboardLayout>
@@ -124,8 +106,8 @@ export default function SellerProfile() {
             <div className="col-sm-6 col-lg-4 col-xl-3">
               <h6>Contacts</h6>
               <p>
-                Manager: {user?.username} <br />
-                Email: {user?.email} <br />
+                <b>Manager:</b> {user?.username} <br />
+                <b>Email:</b> {user?.email} <br />
                 (229) 555-0109, (808) 555-0111
               </p>
             </div>
@@ -134,7 +116,7 @@ export default function SellerProfile() {
               <p>
                 {shop.address ? (
                   <>
-                    Address: {shop.address} <br />
+                    Address: {shop.address.full_address} <br />
                   </>
                 ) : (
                   <Skeleton count={2} />
@@ -160,7 +142,7 @@ export default function SellerProfile() {
                   Large
                 </button>
               </map> */}
-              <div style={{ height: "120px", width: "100%" }}>
+              {/* <div style={{ height: "120px", width: "100%" }}>
                 <GoogleMapReact
                   bootstrapURLKeys={{
                     key: process.env.GOOGLE_MAP_API_KEY,
@@ -175,7 +157,7 @@ export default function SellerProfile() {
                     text="My Marker"
                   />
                 </GoogleMapReact>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

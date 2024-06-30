@@ -70,6 +70,20 @@ export default function CreateFlashSale() {
     return { time_start, time_end };
   };
 
+  const isAvailableToUpdate = (time_start: string, time_end: string) => {
+    const startTime = new Date(time_start);
+    const now = new Date();
+
+    // Tính toán sự chênh lệch giữa thời gian bắt đầu và thời gian hiện tại
+    const timeDiff = startTime.getTime() - now.getTime();
+
+    // Chuyển đổi thời gian chênh lệch thành phút
+    const timeDiffInMinutes = timeDiff / (1000 * 60); // 1 phút = 60000 milliseconds
+
+    // Kiểm tra xem sự chênh lệch có lớn hơn hoặc bằng 30 phút hay không
+    return timeDiffInMinutes >= 60;
+  };
+
   const handleSave = async () => {
     try {
       if (!timeSlot) {
@@ -83,6 +97,12 @@ export default function CreateFlashSale() {
       //console.log("selectedProducts", selectedProducts);
       //console.log("timeSlot", timeSlot);
       const { time_start, time_end } = parseDateTimeRange(timeSlot);
+      if (!isAvailableToUpdate(time_start.toString(), time_end.toString())) {
+        toast.error(
+          "The time slot must be at least 1 hour from now. Please select another time slot"
+        );
+        return;
+      }
       const data = {
         shop_id: user?.shop_id,
         time_start,

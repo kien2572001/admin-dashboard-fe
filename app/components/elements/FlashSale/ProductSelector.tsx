@@ -1,9 +1,10 @@
 // src/ProductModal.tsx
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Table, Pagination } from "react-bootstrap";
+import { Modal, Button, Table } from "react-bootstrap";
 import ProductPrice from "@/app/components/elements/ProductPrice";
 import ProductServices from "@/app/services/api/product-api";
 import usePagination from "@/app/services/hooks/usePagination";
+import Pagination from "../Pagination";
 interface Product {
   _id: string;
   product_name: string;
@@ -116,7 +117,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
       </button>
       <Modal show={show} onHide={handleClose} size="lg" centered>
         <Modal.Header closeButton>
-          <Modal.Title>Chọn sản phẩm</Modal.Title>
+          <Modal.Title>Select product</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Table striped bordered hover>
@@ -209,58 +210,20 @@ const ProductModal: React.FC<ProductModalProps> = ({
             </tbody>
           </Table>
 
-          <div className="pagination-area mt-30 mb-10 d-flex justify-content-center">
-            {totalPages > 1 && (
-              <nav aria-label="Page navigation example">
-                <ul className="pagination justify-content-start">
-                  {page > 1 && (
-                    <li className="page-item">
-                      <button
-                        className="page-link"
-                        onClick={goToPreviousPage}
-                        disabled={page === 1}
-                      >
-                        <i className="material-icons md-chevron_left"></i>
-                      </button>
-                    </li>
-                  )}
-                  {Array.from({ length: totalPages }, (_, index) => (
-                    <li
-                      key={"pagination-" + index}
-                      className={`page-item ${
-                        page === index + 1 ? "active" : ""
-                      }`}
-                    >
-                      <button
-                        className="page-link"
-                        onClick={() => setPageNumber(index + 1)}
-                      >
-                        {index + 1}
-                      </button>
-                    </li>
-                  ))}
-                  {page < totalPages && (
-                    <li className="page-item">
-                      <button
-                        className="page-link"
-                        onClick={goToNextPage}
-                        disabled={page === totalPages}
-                      >
-                        <i className="material-icons md-chevron_right"></i>
-                      </button>
-                    </li>
-                  )}
-                </ul>
-              </nav>
-            )}
-          </div>
+          <Pagination
+            prev={goToPreviousPage}
+            currentPage={page}
+            totalPages={totalPages}
+            next={goToNextPage}
+            handlePageChange={setPageNumber}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
-            Hủy
+            Close
           </Button>
           <Button variant="primary" onClick={handleConfirm}>
-            Xác nhận
+            Confirm
           </Button>
         </Modal.Footer>
       </Modal>

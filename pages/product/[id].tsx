@@ -325,6 +325,7 @@ export default function ProductDetail() {
 
           <ProductClassifySelector
             selectedClassify={selectedClassify}
+            //@ts-ignore
             setSelectedClassify={setSelectedClassify}
             isHasManyClassifications={isHasManyClassifications}
             setIsHasManyClassifications={setIsHasManyClassifications}

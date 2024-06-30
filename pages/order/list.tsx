@@ -12,6 +12,7 @@ import OrderStatusBadge from "@/app/components/elements/Order/OrderStatusBadge";
 import moment from "moment";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import Link from "next/link";
+import Pagination from "@/app/components/elements/Pagination";
 export default function OrderList() {
   const { user } = useAuth();
   const router = useRouter();
@@ -216,49 +217,13 @@ export default function OrderList() {
         {/* <!-- card-body end// --> */}
       </div>
       {/* <!-- card end// --> */}
-      <div className="pagination-area mt-15 mb-50">
-        {totalPages > 1 && (
-          <nav aria-label="Page navigation example">
-            <ul className="pagination justify-content-start">
-              {page > 1 && (
-                <li className="page-item">
-                  <button
-                    className="page-link"
-                    onClick={goToPreviousPage}
-                    disabled={page === 1}
-                  >
-                    <i className="material-icons md-chevron_left"></i>
-                  </button>
-                </li>
-              )}
-              {Array.from({ length: totalPages }, (_, index) => (
-                <li
-                  key={"pagination-" + index}
-                  className={`page-item ${page === index + 1 ? "active" : ""}`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={() => setPageNumber(index + 1)}
-                  >
-                    {index + 1}
-                  </button>
-                </li>
-              ))}
-              {page < totalPages && (
-                <li className="page-item">
-                  <button
-                    className="page-link"
-                    onClick={goToNextPage}
-                    disabled={page === totalPages}
-                  >
-                    <i className="material-icons md-chevron_right"></i>
-                  </button>
-                </li>
-              )}
-            </ul>
-          </nav>
-        )}
-      </div>
+      <Pagination
+        prev={goToPreviousPage}
+        next={goToNextPage}
+        currentPage={page}
+        totalPages={totalPages}
+        handlePageChange={setPageNumber}
+      />
     </DashboardLayout>
   );
 }

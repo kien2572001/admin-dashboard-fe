@@ -14,14 +14,14 @@ export default function FlashSaleDetail() {
   const router = useRouter();
   const { id } = router.query;
   const { user } = useAuth();
-  const [flashSale, setFlashSale] = useState(null);
+  const [flashSale, setFlashSale] = useState<any>(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [timeSlot, setTimeSlot] = useState("");
   const [isActive, setIsActive] = useState(true);
   const fetchFlashSale = async () => {
     try {
       const res: any = await OrderServices.getFlashSaleById(id);
-      console.log(res);
+      console.log("flash sale", res);
       setFlashSale(res);
       setSelectedProducts(res.products);
       setTimeSlot(
@@ -93,10 +93,31 @@ export default function FlashSaleDetail() {
     } else return "";
   };
 
+  const isAvailableToUpdate = (time_start: string, time_end: string) => {
+    const startTime = new Date(time_start);
+    const now = new Date();
+
+    // Tính toán sự chênh lệch giữa thời gian bắt đầu và thời gian hiện tại
+    const timeDiff = startTime.getTime() - now.getTime();
+
+    // Chuyển đổi thời gian chênh lệch thành phút
+    const timeDiffInMinutes = timeDiff / (1000 * 60); // 1 phút = 60000 milliseconds
+
+    // Kiểm tra xem sự chênh lệch có lớn hơn hoặc bằng 30 phút hay không
+    return timeDiffInMinutes >= 60;
+  };
+
   const handleSave = async () => {
     try {
       if (selectedProducts.length === 0) {
         toast.error("Please select at least one product");
+        return;
+      }
+      if (
+        flashSale &&
+        !isAvailableToUpdate(flashSale.time_start, flashSale.time_end)
+      ) {
+        toast.error("Cannot update flash sale because it is too close");
         return;
       }
       const data = {
@@ -179,11 +200,6 @@ export default function FlashSaleDetail() {
                 </div>
               </div>
 
-              {/* <FlashSaleTimePickerModal
-                show={showTimePickerModal}
-                handleClose={handleCloseTimePickerModal}
-                handleSave={handleSaveTimePickerModal}
-              /> */}
               <hr className="mb-4 mt-0" />
               <div className="row">
                 <div className="col-md-3">
@@ -225,7 +241,7 @@ export default function FlashSaleDetail() {
                                 <div className="me-2">
                                   <img
                                     src={product?.images[0]?.url}
-                                    alt={product.product_name}
+                                    alt={product?.product_name}
                                     width="40"
                                   />
                                 </div>
